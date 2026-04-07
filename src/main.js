@@ -404,6 +404,32 @@ ipcMain.handle('execute-command', async (event, command) => {
   }
 });
 
+// Disk bilgilerini döndür
+ipcMain.handle('get-disk-info', async () => {
+  try {
+    // macOS için df -k / komutunu kullanıyoruz
+    const output = execSync('df -k / | tail -1', { encoding: 'utf8' });
+    const parts = output.trim().split(/\s+/);
+    // df output: Filesystem 1024-blocks Used Available Capacity Mounted on
+    // parts[1] = total, parts[2] = used, parts[3] = available
+    const total = parseInt(parts[1]) * 1024;
+    const used = parseInt(parts[2]) * 1024;
+    const available = parseInt(parts[3]) * 1024;
+    const percent = Math.round((used / total) * 100);
+
+    return {
+      success: true,
+      total,
+      used,
+      available,
+      percent
+    };
+  } catch (error) {
+    logError('Disk bilgisi alınamadı:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // Uygulama bilgilerini döndür
 ipcMain.handle('get-app-info', () => {
   return {

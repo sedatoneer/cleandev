@@ -23,6 +23,7 @@ const apiInterface = {
 
   // Komut çalıştırma
   executeCommand: (command) => ipcRenderer.invoke('execute-command', command),
+  getDiskInfo: () => ipcRenderer.invoke('get-disk-info'),
 
   // Uygulama bilgisi
   getAppInfo: () => ipcRenderer.invoke('get-app-info')
@@ -30,4 +31,4 @@ const apiInterface = {
 
 // API'yi expose et
 contextBridge.exposeInMainWorld('api', apiInterface);
-contextBridge.exposeInMainWorld('electronAPI', apiInterface); 
+contextBridge.exposeInMainWorld('electronAPI', apiInterface);

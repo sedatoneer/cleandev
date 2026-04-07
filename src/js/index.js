@@ -62,4 +62,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   await loadScanConfig();
   loadRules();
   updateWizardSteps();
-}); 
+  updateDiskInfo();
+});
+
+// Temizleme işlemi tamamlandığında disk bilgisini güncellemek için cleaner.js'den dışarı aktarılacak
+window.updateDiskStatus = updateDiskInfo;

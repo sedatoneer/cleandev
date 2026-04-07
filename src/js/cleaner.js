@@ -164,6 +164,11 @@ export async function startCleanup() {
   // Temizleme tamamlandı logu
   addCleanupLog(`Temizleme tamamlandı. Toplam ${formatSize(totalCleanedSize)} temizlendi.`, 'success');
 
+  // Disk durumunu güncelle
+  if (typeof window.updateDiskStatus === 'function') {
+    window.updateDiskStatus();
+  }
+
   // Temizleme tamamlandı bildirimi
   await showSwal({
     title: 'Temizleme Tamamlandı',

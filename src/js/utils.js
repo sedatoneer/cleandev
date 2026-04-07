@@ -35,7 +35,7 @@ export function updateStep(step) {
       el.classList.remove('active');
     }
   });
-  
+
   // Butonları adıma göre güncelle
   if (step === 1) {
     scanButton.classList.remove('d-none');
@@ -53,7 +53,7 @@ export function updateStep(step) {
 export function updateCleanButton() {
   const hasSelectedResults = document.querySelectorAll('.result-checkbox:checked').length > 0;
   const cleanBtn = document.getElementById('clean-button');
-  
+
   if (hasSelectedResults) {
     cleanBtn.classList.remove('btn-outline-primary');
     cleanBtn.classList.add('btn-primary');
@@ -68,7 +68,7 @@ export function updateCleanButton() {
 // SweetAlert2 için dark mode desteği ekleyen yardımcı fonksiyon
 export function showSwal(options) {
   const isDarkMode = document.body.classList.contains('dark-mode');
-  
+
   // Dark mode varsa SweetAlert2 tema ayarlarını ekle
   if (isDarkMode) {
     options = {
@@ -91,6 +91,24 @@ export function showSwal(options) {
       confirmButtonColor: '#473185', // Light mode primary color
     };
   }
-  
+
   return Swal.fire(options);
+}
+
+export async function updateDiskInfo() {
+  if (window.api && window.api.getDiskInfo) {
+    const disk = await window.api.getDiskInfo();
+    if (disk.success) {
+      const diskProgressBar = document.getElementById('disk-progress-bar');
+      const diskPercentText = document.getElementById('disk-percent');
+      const diskInfoText = document.getElementById('disk-info-text');
+
+      const usedFormatted = formatSize(disk.used);
+      const totalFormatted = formatSize(disk.total);
+
+      if (diskProgressBar) diskProgressBar.style.width = `${disk.percent}%`;
+      if (diskPercentText) diskPercentText.textContent = `${disk.percent}%`;
+      if (diskInfoText) diskInfoText.textContent = `${usedFormatted} / ${totalFormatted}`;
+    }
+  }
 } 

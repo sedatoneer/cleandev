@@ -1,277 +1,230 @@
 <!DOCTYPE html>
 <html lang="tr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:;">
-  <title>Cleantr - macOS Temizlik Uygulaması</title>
-  <!-- Bootstrap CSS -->
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; font-src 'self' https://cdn.jsdelivr.net; img-src 'self' data:;">
+  <title>CleanTR - macOS Cleanup</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" rel="stylesheet">
-  <!-- SweetAlert2 -->
   <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
-  <!-- Custom CSS -->
   <link href="styles.css" rel="stylesheet">
 </head>
-<body class="bg-light">
-  <div class="container-fluid p-0">
-    <header class="bg-white shadow-sm">
-      <div class="container">
-        <div class="row align-items-center">
-          <div class="col-auto">
-            <img id="app-logo" src="assets/cleantr.svg" alt="Cleantr Logo" class="app-logo" />
+
+<body class="dark-mode">
+  <div class="app-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <img src="assets/cleantr.svg" alt="CleanTR" class="sidebar-logo">
+        <span class="app-name">CleanTR</span>
+      </div>
+
+      <nav class="nav-menu">
+        <a href="#" class="nav-item active" data-step="1">
+          <i class="bi bi-shield-check"></i>
+          <span>Temizleyici</span>
+        </a>
+        <a href="#" class="nav-item" data-step="2">
+          <i class="bi bi-search"></i>
+          <span>Tarama</span>
+        </a>
+        <a href="#" class="nav-item" data-step="3">
+          <i class="bi bi-trash3"></i>
+          <span>Sonuçlar</span>
+        </a>
+        <a href="#" id="settings-button" class="nav-item" data-step="4">
+          <i class="bi bi-gear"></i>
+          <span>Ayarlar</span>
+        </a>
+      </nav>
+
+      <!-- Disk Progress Bar in Sidebar Bottom -->
+      <div class="sidebar-footer">
+        <div class="disk-usage-section p-3 mb-2 glass-card">
+          <div class="d-flex justify-content-between mb-1">
+            <span class="small text-muted">Disk Durumu</span>
+            <span id="disk-percent" class="small fw-bold">0%</span>
           </div>
-          <div class="col">
-            <div class="d-flex justify-content-between align-items-center">
-              <div class="wizard">
-                <div class="wizard-steps">
-                  <div class="wizard-step active" id="step-1">
-                    <div class="wizard-step-icon">
-                      <i class="bi bi-list-check"></i>
-                    </div>
-                    <div class="wizard-step-label">Kurallar</div>
-                  </div>
-                  <div class="wizard-step" id="step-2">
-                    <div class="wizard-step-icon">
-                      <i class="bi bi-search"></i>
-                    </div>
-                    <div class="wizard-step-label">Tarama</div>
-                  </div>
-                  <div class="wizard-step" id="step-3">
-                    <div class="wizard-step-icon">
-                      <i class="bi bi-trash"></i>
-                    </div>
-                    <div class="wizard-step-label">Temizleme</div>
-                  </div>
-                </div>
-              </div>
-              <div class="d-flex align-items-center">
-                <small id="app-version" class="text-muted me-3"></small>
-                <button id="settings-button" class="btn btn-link text-dark">
-                  <i class="bi bi-gear-fill fs-4"></i>
-                </button>
-              </div>
-            </div>
+          <div class="progress" style="height: 6px; background: rgba(255,255,255,0.05);">
+            <div id="disk-progress-bar" class="progress-bar bg-primary" role="progressbar" style="width: 0%"></div>
           </div>
+          <div class="small text-muted mt-1" id="disk-info-text">-- / --</div>
         </div>
-        <div class="row mt-3">
-          <div class="col">
-            <div class="d-flex gap-2">
-              <div class="ms-auto">
-                <span id="total-size" class="text-muted"></span>
-              </div>
-            </div>
-          </div>
+        <div class="px-3">
+          <small id="app-version" class="text-muted" style="font-size: 0.7rem;"></small>
         </div>
       </div>
-    </header>
+    </aside>
 
-    <main class="container py-4">
-      <!-- Step 1: Rules -->
+    <!-- Main Content -->
+    <main class="content-area">
+      <!-- Step 1: Cleaner Dashboard -->
       <div id="step-1-content" class="step-content active">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2 class="mb-0">Temizlenecek Klasörler</h2>
-          <div class="d-flex gap-2">
-            <button id="select-all-rules" class="btn btn-sm btn-outline-primary">Tümünü Seç</button>
-            <button id="unselect-all-rules" class="btn btn-sm btn-outline-secondary">Tümünü Kaldır</button>
+        <div class="scan-container">
+          <div class="scan-visual mb-5">
+            <div class="pulse"></div>
+            <button id="scan-button" class="scan-btn-circular">
+              <i class="bi bi-lightning-charge-fill"></i>
+              <span id="scan-btn-text">SCAN</span>
+            </button>
           </div>
-        </div>
-        <div id="rules-container" class="rules-list">
-          
-          <div class="loading text-center py-5">
-            <div class="spinner-border text-primary" role="status">
-              <span class="visually-hidden">Yükleniyor...</span>
-            </div>
-            <p class="mt-2">Yükleniyor...</p>
-          </div>
-        </div>
-      </div>
 
-      <!-- Step 2: Scan Logs -->
-      <div id="step-2-content" class="step-content">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h2 class="mb-0">Tarama Logları</h2>
-          <div class="d-flex gap-2">
-            <button id="select-all-results" class="btn btn-sm btn-outline-primary">Tümünü Seç</button>
-            <button id="unselect-all-results" class="btn btn-sm btn-outline-secondary">Tümünü Kaldır</button>
+          <div class="text-center mb-5">
+            <h1 class="fw-bold mb-2" id="welcome-text">Başlamaya Hazır</h1>
+            <p class="text-muted fs-5" id="welcome-desc">Mac'inizi optimize etmek için derin bir tarama başlatın.</p>
+            <div id="total-size" class="badge bg-primary rounded-pill px-4 py-2 mt-2 fs-6"></div>
           </div>
-        </div>
-        <div id="results-container" class="results-list2 mb-4">
-          
-        </div>
-        <div id="log-container" class="mt-4">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">Tarama Detayları</h5>
-              <button id="clear-logs" class="btn btn-sm btn-outline-secondary">Temizle</button>
-            </div>
-            <div class="card-body">
-              <pre id="log-content" class="log-content"></pre>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Step 3: Cleanup Results -->
-      <div id="step-3-content" class="step-content">
-        <h2 class="mb-4">Temizleme Sonuçları</h2>
-        <div id="cleanup-progress" class="progress mb-4 d-none">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-        </div>
-        <div class="cleanup-stats mb-4">
-          <div class="card">
-            <div class="card-body">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="stat-item">
-                    <h3 id="total-cleaned">0 MB</h3>
-                    <p class="text-muted">Toplam Temizlenen</p>
-                  </div>
+          <div class="w-100">
+            <div class="glass-card p-4">
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <h4 class="fw-bold m-0"><i class="bi bi-grid-fill me-2 text-primary"></i><span
+                    id="rules-header">Temizlik Kuralları</span></h4>
+                <div class="d-flex gap-3">
+                  <button id="select-all-rules" class="btn-secondary-action">TÜMÜNÜ SEÇ</button>
+                  <button id="unselect-all-rules" class="btn-secondary-action">KALDIR</button>
                 </div>
-                <div class="col-md-4">
-                  <div class="stat-item">
-                    <h3 id="space-saved">0%</h3>
-                    <p class="text-muted">Yer Kazanıldı</p>
-                  </div>
-                </div>
-                <div class="col-md-4">
-                  <div class="stat-item">
-                    <h3 id="files-cleaned">0</h3>
-                    <p class="text-muted">Temizlenen Klasör</p>
-                  </div>
-                </div>
+              </div>
+              <div id="rules-container" class="rules-grid">
+                <!-- Rules injected here -->
               </div>
             </div>
           </div>
         </div>
-        
-        <!-- Temizleme Logları -->
-        <div id="cleanup-log-container" class="mt-4">
-          <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <h5 class="mb-0">Temizleme Detayları</h5>
-              <button id="clear-cleanup-logs" class="btn btn-sm btn-outline-secondary">Temizle</button>
+      </div>
+
+      <!-- Step 2: Scanning -->
+      <div id="step-2-content" class="step-content">
+        <h1 class="fw-bold mb-4">Sistem Taranıyor...</h1>
+        <div id="results-container" class="rules-grid mb-4">
+          <!-- Live scan results here -->
+        </div>
+
+        <div class="glass-card mt-auto" id="log-container">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fw-bold"><i class="bi bi-terminal me-2"></i>Loglar</span>
+            <button id="clear-logs" class="btn btn-sm btn-link text-muted p-0">Temizle</button>
+          </div>
+          <div class="log-terminal" id="log-content"></div>
+        </div>
+      </div>
+
+      <!-- Step 3: Finished / Clean Results -->
+      <div id="step-3-content" class="step-content">
+        <div class="text-center py-5">
+          <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+          <h1 class="fw-bold mt-4" id="finished-text">Temizlik Tamamlandı!</h1>
+          <p class="text-muted fs-5" id="finished-desc">Mac'iniz şimdi daha temiz ve hızlı.</p>
+        </div>
+
+        <div class="row g-4 mt-2">
+          <div class="col-md-4">
+            <div class="glass-card p-4 text-center h-100">
+              <h2 id="total-cleaned" class="fw-bold text-primary mb-1">0 B</h2>
+              <p class="text-muted mb-0">Toplam Temizlenen</p>
             </div>
-            <div class="card-body">
-              <pre id="cleanup-log-content" class="log-content"></pre>
+          </div>
+          <div class="col-md-4">
+            <div class="glass-card p-4 text-center h-100">
+              <h2 id="space-saved" class="fw-bold text-success mb-1">0%</h2>
+              <p class="text-muted mb-0">Yer Kazanıldı</p>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="glass-card p-4 text-center h-100">
+              <h2 id="files-cleaned" class="fw-bold text-info mb-1">0</h2>
+              <p class="text-muted mb-0">Temizlenen Dosya</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card mt-4" id="cleanup-log-container">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold m-0" id="cleanup-logs-header">Temizleme Detayları</h5>
+            <button id="clear-cleanup-logs" class="btn btn-sm btn-link text-muted p-0">Temizle</button>
+          </div>
+          <div class="log-terminal" id="cleanup-log-content"></div>
+        </div>
+
+        <div class="fixed-bottom p-4 d-flex justify-content-end pointer-events-none" style="z-index: 1000;">
+          <button id="clean-button" class="btn btn-premium btn-lg shadow-lg" style="pointer-events: auto;">
+            <i class="bi bi-trash-fill me-2"></i> <span id="clean-btn-text">TEMİZLE</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 4: Settings -->
+      <div id="step-4-content" class="step-content">
+        <h1 class="fw-bold mb-4">Ayarlar</h1>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <div class="glass-card p-4">
+              <h5 class="fw-bold mb-4"><i class="bi bi-translate me-2 text-primary"></i>Dil Seçimi</h5>
+              <select id="language-select" class="form-select bg-dark text-white border-secondary p-3">
+                <option value="tr">Türkçe</option>
+                <option value="en">English</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="glass-card p-4">
+              <h5 class="fw-bold mb-4"><i class="bi bi-palette me-2 text-primary"></i>Görünüm</h5>
+              <div class="form-check form-switch fs-5">
+                <input class="form-check-input" type="checkbox" id="dark-mode" checked disabled>
+                <label class="form-check-label text-muted" for="dark-mode">Koyu Tema (Aktif)</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12">
+            <div class="glass-card p-4">
+              <h5 class="fw-bold mb-2"><i class="bi bi-info-circle me-2 text-primary"></i>Uygulama Bilgisi</h5>
+              <div
+                class="d-flex justify-content-between align-items-center py-2 border-bottom border-secondary opacity-50">
+                <span class="text-muted">Son Tarama</span>
+                <span id="last-scan-date" class="fw-bold">-</span>
+              </div>
+              <div class="d-flex justify-content-between align-items-center py-2">
+                <span class="text-muted">Yasal</span>
+                <span class="small">CleanTR © 2026</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </main>
-
-    <!-- Settings Modal -->
-    <div class="modal fade" id="settingsModal" tabindex="-1">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Ayarlar</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <label for="language-select" class="form-label">Dil</label>
-              <select id="language-select" class="form-select">
-                <option value="tr">Türkçe</option>
-                <option value="en">English</option>
-              </select>
-            </div>
-            <div class="mb-3 form-check">
-              <input type="checkbox" class="form-check-input" id="dark-mode">
-              <label class="form-check-label" for="dark-mode">Koyu Tema</label>
-            </div>
-            <div class="text-muted">
-              <small>Son Tarama: <span id="last-scan-date">Hiç</span></small>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Fixed Bottom Action Buttons -->
-    <div class="fixed-bottom d-flex justify-content-center pb-4" id="fixed-action-buttons">
-      <button id="scan-button"  class="btn btn-lg btn-primary mx-2 d-none"><i class="bi bi-search fs-2"></i> <span id="scan-button-text">Tara</span></button>
-      <button id="clean-button" class="btn btn-lg btn-primary mx-2 d-none"><i class="bi bi-trash fs-2"></i> <span id="clean-button-text">Temizle</span></button>
-    </div>
   </div>
 
+  <!-- Templates -->
   <template id="rule-template">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <input type="checkbox" class="form-check-input me-2 rule-checkbox">
-          <h5 class="card-title mb-0 rule-name"></h5>
-        </div>
-        <div class="rule-details">
-          <div class="text-muted small">
-            <a href="#" class="rule-path text-decoration-none" style="cursor: pointer;"></a>
-          </div>
-          <div class="mt-2 rule-description"></div>
-        </div>
+    <div class="glass-card p-3 d-flex align-items-start gap-3 rule-item">
+      <input type="checkbox" class="rule-check rule-checkbox mt-1">
+      <div class="flex-grow-1">
+        <div class="fw-bold mb-1 rule-name"></div>
+        <div class="text-muted small mb-2 rule-description"></div>
+        <code class="small text-primary opacity-75 rule-path" style="cursor: pointer;"></code>
       </div>
     </div>
   </template>
 
   <template id="result-template">
-    <div class="card">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <input type="checkbox" class="form-check-input me-2 result-checkbox">
-          <h5 class="card-title mb-0 result-name"></h5>
-          <span class="ms-auto result-size text-muted"></span>
-        </div>
+    <div class="glass-card p-3 d-flex align-items-center gap-3">
+      <div class="flex-grow-1">
+        <div class="fw-bold result-name"></div>
         <div class="text-muted small result-path"></div>
       </div>
+      <div class="text-primary fw-bold result-size">0 B</div>
     </div>
   </template>
 
-  <template id="cleanup-result-template">
-    <div class="card mb-3">
-      <div class="card-body">
-        <div class="d-flex align-items-center mb-2">
-          <div class="cleanup-status me-2">
-            <i class="bi bi-check-circle-fill text-success"></i>
-          </div>
-          <div class="flex-grow-1">
-            <h5 class="card-title mb-0 cleanup-item-name"></h5>
-            <div class="text-muted small cleanup-item-path"></div>
-          </div>
-          <div class="cleanup-item-size text-muted"></div>
-        </div>
-        <div class="cleanup-item-details small text-muted"></div>
-      </div>
-    </div>
-  </template>
-
-  <!-- Bootstrap JS -->
+  <!-- External JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <!-- SweetAlert2 -->
-  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.all.min.js"></script>
-  
-  <!-- API Test Script -->
-  <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      console.log('API test başlatılıyor...');
-      console.log('window.api:', window.api);
-      
-      // API varlığını kontrol et
-      if (window.api) {
-        console.log('API mevcut:', Object.keys(window.api));
-        
-        // OpenInFinder varlığını kontrol et
-        if (typeof window.api.openInFinder === 'function') {
-          console.log('openInFinder fonksiyonu mevcut');
-        } else {
-          console.error('openInFinder fonksiyonu mevcut değil!');
-        }
-      } else {
-        console.error('API mevcut değil!');
-      }
-    });
-  </script>
-  
-  <!-- Modüler JavaScript -->
   <script type="module" src="src/js/index.js"></script>
 </body>
-</html> 
+
+</html>
