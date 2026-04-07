@@ -14,6 +14,7 @@ const clearLogsButton = document.getElementById('clear-logs');
 const appLogo = document.getElementById('app-logo');
 const selectAllRulesButton = document.getElementById('select-all-rules');
 const unselectAllRulesButton = document.getElementById('unselect-all-rules');
+const appVersionElement = document.getElementById('app-version');
 
 // Bootstrap Modal
 const settingsModal = new bootstrap.Modal(document.getElementById('settingsModal'));
@@ -87,6 +88,7 @@ unselectAllRulesButton.addEventListener('click', unselectAllRules);
 // Initialize
 document.addEventListener('DOMContentLoaded', async () => {
   loadSettings();
+  loadAppInfo();
   await loadScanConfig();
   loadRules();
   changeLanguage('tr');
@@ -541,4 +543,28 @@ function unselectAllRules() {
     selectedRules.delete(ruleId);
   });
   updateCleanButton();
+}
+
+async function loadAppInfo() {
+  try {
+    // Electron API mevcut mu kontrol et
+    if (window.api && window.api.getAppInfo) {
+      const appInfo = await window.api.getAppInfo();
+      if (appVersionElement && appInfo.version) {
+        appVersionElement.textContent = `v${appInfo.version}`;
+        
+        // App Store sürümünde ek gösterge
+        if (appInfo.isMAS) {
+          appVersionElement.textContent += ' (MAS)';
+        }
+      }
+    } else {
+      // Web görüntüleme için sabit versiyon
+      if (appVersionElement) {
+        appVersionElement.textContent = 'v1.0.1';
+      }
+    }
+  } catch (error) {
+    console.error('Uygulama bilgisi yüklenemedi:', error);
+  }
 } 

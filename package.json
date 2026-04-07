@@ -1,20 +1,32 @@
 {
   "name": "cleantr",
   "productName": "CleanTR",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "macOS geliştiricileri için disk temizleme uygulaması",
   "main": "src/main.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron .",
     "build": "electron-builder",
+    "build-mac": "electron-builder --mac",
+    "build-mas": "electron-builder --mac mas --config.mas.type=development",
+    "build-mas-signed": "CSC_NAME='UMIT TUNC (3W8Z9FGZ63)' CSC_INSTALLER_NAME='UMIT TUNC (3W8Z9FGZ63)' IS_MAS=true electron-builder --mac mas",
+    "build-mas-dev": "electron-builder --mac mas-dev",
+    "build-dir": "CSC_IDENTITY_AUTO_DISCOVERY=false electron-builder --mac dir",
+    "notarize": "electron-notarize",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": {
+    "name": "Umit Tunc",
+    "email": "hello@umittunc.org",
+    "url": "https://umittunc.org"
+  },
   "license": "MIT",
   "devDependencies": {
+    "@electron/notarize": "^3.0.1",
     "electron": "^28.0.0",
-    "electron-builder": "^24.9.1"
+    "electron-builder": "23.6.0",
+    "electron-notarize": "^1.2.2"
   },
   "dependencies": {
     "bootstrap": "^5.3.0",
@@ -26,9 +38,57 @@
   },
   "build": {
     "appId": "com.truncgil.cleantr",
+    "productName": "CleanTR",
+    "copyright": "Copyright © 2023-2024 Umit Tunc",
+    "afterSign": "scripts/notarize.js",
+    "forceCodeSigning": false,
     "mac": {
       "icon": "assets/icon.icns",
-      "category": "public.app-category.utilities"
-    }
+      "category": "public.app-category.utilities",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist",
+      "darkModeSupport": true,
+      "extraResources": [
+        {
+          "from": "scan-config.json",
+          "to": "scan-config.json"
+        }
+      ],
+      "target": [
+        "dmg",
+        "zip"
+      ]
+    },
+    "mas": {
+      "entitlements": "build/entitlements.mas.plist",
+      "entitlementsInherit": "build/entitlements.mas.inherit.plist",
+      "hardenedRuntime": false,
+      "provisioningProfile": "build/embedded.provisionprofile",
+      "type": "development",
+      "category": "public.app-category.utilities",
+      "artifactName": "${productName}-${version}-mas.pkg"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "window": {
+        "width": 540,
+        "height": 380
+      },
+      "iconSize": 128
+    },
+    "publish": null
   }
 }

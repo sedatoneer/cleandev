@@ -19,7 +19,10 @@ const apiInterface = {
   formatBytes: (bytes) => ipcRenderer.invoke('format-bytes', bytes),
   
   // Finder'da açma
-  openInFinder: (folderPath) => ipcRenderer.invoke('openInFinder', folderPath)
+  openInFinder: (folderPath) => ipcRenderer.invoke('openInFinder', folderPath),
+  
+  // Uygulama bilgisi
+  getAppInfo: () => ipcRenderer.invoke('get-app-info')
 };
 
 // API'yi expose et

@@ -1,134 +1,162 @@
-{
-  "scanFolders": [
-    {
-      "id": "xcode_derived_data",
-      "name": "Derived Data",
-      "path": "~/Library/Developer/Xcode/DerivedData",
-      "description": {
-        "tr": "Xcode tarafından oluşturulan geçici derleme dosyaları. Güvenle silinebilir.",
-        "en": "Temporary build files created by Xcode. Safe to delete."
-      },
-      "enabled": true
+[
+  {
+    "id": "xcode_derived_data",
+    "name": "Derived Data",
+    "path": "~/Library/Developer/Xcode/DerivedData",
+    "description": {
+      "tr": "Xcode tarafından oluşturulan geçici derleme dosyaları. Güvenle silinebilir.",
+      "en": "Temporary build files created by Xcode. Safe to delete."
     },
-    {
-      "id": "xcode_archives",
-      "name": "Archives",
-      "path": "~/Library/Developer/Xcode/Archives",
-      "description": {
-        "tr": "Xcode tarafından oluşturulan derleme arşivleri. Geçmiş derlemelere ihtiyaç duymuyorsanız silin.",
-        "en": "Build archives created by Xcode. Delete if you don't need past builds."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "xcode_archives",
+    "name": "Archives",
+    "path": "~/Library/Developer/Xcode/Archives",
+    "description": {
+      "tr": "Xcode tarafından oluşturulan derleme arşivleri. Geçmiş derlemelere ihtiyaç duymuyorsanız silin.",
+      "en": "Build archives created by Xcode. Delete if you don't need past builds."
     },
-    {
-      "id": "simulators",
-      "name": "iOS Simulators",
-      "path": "~/Library/Developer/CoreSimulator/Devices",
-      "description": {
-        "tr": "Simülatör dosyaları, uygulamalar ve veriler. Gerektiğinde yeniden oluşturulur.",
-        "en": "Simulator files, apps and data. Recreated when needed."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "xcode_device_support",
+    "name": "Device Support",
+    "path": "~/Library/Developer/Xcode/iOS DeviceSupport",
+    "description": {
+      "tr": "Cihaz hata ayıklama destek dosyaları. Genellikle eski iOS sürümleri içindir.",
+      "en": "Device debug support files. Usually for old iOS versions."
     },
-    {
-      "id": "android_avd",
-      "name": "Android Emulators (AVD)",
-      "path": "~/.android/avd",
-      "description": {
-        "tr": "Android sanal cihaz imajları ve verileri. Genellikle büyük boyutludur.",
-        "en": "Android virtual device images and data. Can be large in size."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "simulators",
+    "name": "iOS Simulators",
+    "path": "~/Library/Developer/CoreSimulator/Devices",
+    "description": {
+      "tr": "Simülatör dosyaları, uygulamalar ve veriler. Gerektiğinde yeniden oluşturulur.",
+      "en": "Simulator files, apps and data. Recreated when needed."
     },
-    {
-      "id": "android_gradle_cache",
-      "name": "Gradle Caches",
-      "path": "~/.gradle/caches",
-      "description": {
-        "tr": "Gradle build/indirme önbelleği. Gerektiğinde yeniden oluşturulur.",
-        "en": "Gradle build/download cache. Will be regenerated."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "flutter_build",
+    "name": "Flutter Build Outputs",
+    "path": "~/projects/flutter/*/build",
+    "description": {
+      "tr": "Flutter projelerinden oluşan build çıktıları. Güvenle silinebilir.",
+      "en": "Build outputs from Flutter projects. Can be deleted safely."
     },
-    {
-      "id": "npm_cache",
-      "name": "NPM Cache",
-      "path": "~/.npm",
-      "description": {
-        "tr": "Node.js paket önbelleği. Alan kazanmak için silinebilir.",
-        "en": "Node.js package cache. Can be removed to save space."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "android_avd",
+    "name": "Android Emulators (AVD)",
+    "path": "~/.android/avd",
+    "description": {
+      "tr": "Android sanal cihaz imajları ve verileri. Genellikle büyük boyutludur.",
+      "en": "Android virtual device images and data. Can be large in size."
     },
-    {
-      "id": "yarn_cache",
-      "name": "Yarn Cache",
-      "path": "~/.cache/yarn",
-      "description": {
-        "tr": "Yarn paket önbelleği. Silinmesi güvenlidir.",
-        "en": "Yarn package cache. Safe to remove."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "android_gradle_cache",
+    "name": "Gradle Caches",
+    "path": "~/.gradle/caches",
+    "description": {
+      "tr": "Gradle build/indirme önbelleği. Gerektiğinde yeniden oluşturulur.",
+      "en": "Gradle build/download cache. Will be regenerated."
     },
-    {
-      "id": "system_temp",
-      "name": "System Temp Files",
-      "path": "/private/var/folders",
-      "description": {
-        "tr": "macOS sistem geçici klasörleri. Genellikle güvenle temizlenebilir.",
-        "en": "macOS system temporary folders. Usually safe to clean."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "android_studio_log",
+    "name": "Android Studio Logs",
+    "path": "~/Library/Logs/Google/AndroidStudio*",
+    "description": {
+      "tr": "Android Studio log dosyaları. Silinmesi güvenlidir.",
+      "en": "Log files from Android Studio. Safe to delete."
     },
-    {
-      "id": "user_caches",
-      "name": "User Caches",
-      "path": "~/Library/Caches",
-      "description": {
-        "tr": "Kullanıcı önbellek klasörleri. Çoğu uygulamanın önbellek dosyaları burada bulunur. Güvenle silinebilir.",
-        "en": "User cache folders. Most app caches are stored here. Safe to remove."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "npm_cache",
+    "name": "NPM Cache",
+    "path": "~/.npm",
+    "description": {
+      "tr": "Node.js paket önbelleği. Alan kazanmak için silinebilir.",
+      "en": "Node.js package cache. Can be removed to save space."
     },
-    {
-      "id": "downloads",
-      "name": "Downloads Folder",
-      "path": "~/Downloads",
-      "description": {
-        "tr": "İndirilen dosyalar klasörü. Gereksiz büyük dosyalar burada bulunabilir.",
-        "en": "Downloads folder. Large unnecessary files may be here."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "yarn_cache",
+    "name": "Yarn Cache",
+    "path": "~/.cache/yarn",
+    "description": {
+      "tr": "Yarn paket önbelleği. Silinmesi güvenlidir.",
+      "en": "Yarn package cache. Safe to remove."
     },
-    {
-      "id": "mail_attachments",
-      "name": "Mail Attachments",
-      "path": "~/Library/Containers/com.apple.mail/Data/Library/Mail Downloads",
-      "description": {
-        "tr": "Mail uygulamasından indirilen ekler. Silinmesi genellikle güvenlidir.",
-        "en": "Mail attachments downloaded by the Mail app. Usually safe to delete."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "system_temp",
+    "name": "System Temp Files",
+    "path": "/private/var/folders",
+    "description": {
+      "tr": "macOS sistem geçici klasörleri. Genellikle güvenle temizlenebilir.",
+      "en": "macOS system temporary folders. Usually safe to clean."
     },
-    {
-      "id": "messages_attachments",
-      "name": "Messages Attachments",
-      "path": "~/Library/Messages/Attachments",
-      "description": {
-        "tr": "Mesajlar uygulamasındaki medya ve dosya ekleri. Alan kazanmak için silinebilir.",
-        "en": "Attachments from the Messages app. Can be deleted to free up space."
-      },
-      "enabled": true
+    "selected": true
+  },
+  {
+    "id": "user_caches",
+    "name": "User Caches",
+    "path": "~/Library/Caches",
+    "description": {
+      "tr": "Kullanıcı önbellek klasörleri. Çoğu uygulamanın önbellek dosyaları burada bulunur. Güvenle silinebilir.",
+      "en": "User cache folders. Most app caches are stored here. Safe to remove."
     },
-    {
-      "id": "time_machine_snapshots",
-      "name": "Time Machine Snapshots",
-      "path": "/.MobileBackups",
-      "description": {
-        "tr": "Time Machine tarafından oluşturulan yerel anlık görüntüler. Silinmesi alan açabilir.",
-        "en": "Local snapshots created by Time Machine. Deleting can free up space."
-      },
-      "enabled": true
-    }
-  ]
-}
+    "selected": true
+  },
+  {
+    "id": "downloads",
+    "name": "Downloads Folder",
+    "path": "~/Downloads",
+    "description": {
+      "tr": "İndirilen dosyalar klasörü. Gereksiz büyük dosyalar burada bulunabilir.",
+      "en": "Downloads folder. Large unnecessary files may be here."
+    },
+    "selected": true
+  },
+  {
+    "id": "mail_attachments",
+    "name": "Mail Attachments",
+    "path": "~/Library/Containers/com.apple.mail/Data/Library/Mail Downloads",
+    "description": {
+      "tr": "Mail uygulamasından indirilen ekler. Silinmesi genellikle güvenlidir.",
+      "en": "Mail attachments downloaded by the Mail app. Usually safe to delete."
+    },
+    "selected": true
+  },
+  {
+    "id": "messages_attachments",
+    "name": "Messages Attachments",
+    "path": "~/Library/Messages/Attachments",
+    "description": {
+      "tr": "Mesajlar uygulamasındaki medya ve dosya ekleri. Alan kazanmak için silinebilir.",
+      "en": "Attachments from the Messages app. Can be deleted to free up space."
+    },
+    "enabled": true
+  },
+  {
+    "id": "time_machine_snapshots",
+    "name": "Time Machine Snapshots",
+    "path": "/.MobileBackups",
+    "description": {
+      "tr": "Time Machine tarafından oluşturulan yerel anlık görüntüler. Silinmesi alan açabilir.",
+      "en": "Local snapshots created by Time Machine. Deleting can free up space."
+    },
+    "enabled": true
+  }
+]
