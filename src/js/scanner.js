@@ -35,40 +35,44 @@ export async function startScan() {
   logContainer.classList.remove('d-none');
   addLog(translations[currentLanguage].scanStarted);
   updateStep(2);
-  
+
   window.scanResults = [];
-  
+
   // Sadece seçili kuralları tara
   for (const checkbox of selectedRuleCheckboxes) {
     const ruleId = checkbox.id.replace('rule-', '');
     const folder = window.scanConfig.scanFolders.find(f => f.id === ruleId);
-    
+
     if (!folder) {
       addLog(`HATA: ${ruleId} ID'li kural bulunamadı`);
       continue;
     }
 
     addLog(`${folder.name} klasörü taranıyor...`);
-    
+
     try {
       // Gerçek klasör boyutunu hesapla
-      const stats = await window.api.getFolderSize(folder.path);
-      const size = stats.size;
-      
+      let size = 0;
+      if (folder.path) {
+        const stats = await window.api.getFolderSize(folder.path);
+        // API hem numara hem de {size: ...} objesi döndürebilir, güvenli alalım
+        size = typeof stats === 'number' ? stats : (stats && typeof stats.size === 'number' ? stats.size : 0);
+      }
+
       window.scanResults.push({
         id: folder.id,
         name: folder.name,
-        path: folder.path,
+        path: folder.path || '',
         size: size,
         description: folder.description[currentLanguage]
       });
-      
+
       addLog(`${folder.name} klasörü tarandı. Boyut: ${formatSize(size)}`);
     } catch (error) {
       addLog(`HATA: ${folder.name} klasörü taranırken hata: ${error.message}`);
     }
   }
-  
+
   displayResults();
   scanButton.disabled = false;
   scanButton.textContent = translations[currentLanguage].scan;
@@ -80,12 +84,12 @@ export async function startScan() {
 export function displayResults() {
   resultsContainer.innerHTML = '';
   resultsContainer.classList.remove('d-none');
-  
+
   window.scanResults.forEach(result => {
     const resultElement = createResultElement(result);
     resultsContainer.appendChild(resultElement);
   });
-  
+
   updateTotalSize();
 }
 
@@ -95,6 +99,6 @@ export function updateTotalSize() {
     const result = window.scanResults.find(r => `result-${r.id}` === checkbox.id);
     return total + (result ? result.size : 0);
   }, 0);
-  
+
   totalSizeElement.textContent = `Toplam: ${formatSize(window.totalSize)}`;
 } 

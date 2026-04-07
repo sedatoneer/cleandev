@@ -67,7 +67,7 @@ function createWindow() {
   }
 
   mainWindow.loadFile('index.html');
-  
+
   // Dış linkleri tarayıcıda aç
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {
     if (url.startsWith('http')) {
@@ -105,7 +105,7 @@ function readRules() {
       // Geliştirme modu için proje kök dizininden oku
       rulesPath = path.join(__dirname, '..', 'scan-config.json');
     }
-    
+
     logInfo(`Kurallar okunuyor: ${rulesPath}`);
     const rulesContent = fs.readFileSync(rulesPath, 'utf8');
     const rules = JSON.parse(rulesContent);
@@ -117,8 +117,16 @@ function readRules() {
 }
 
 // Dizin boyutunu hesapla - App Store uyumlu
-function getDirSize(dirPath) {
+function getDirSize(originalPath) {
   try {
+    if (!originalPath || typeof originalPath !== 'string') {
+      return 0;
+    }
+    const dirPath = resolveHome(originalPath);
+    if (!fs.existsSync(dirPath) && !dirPath.includes('*')) {
+      return 0;
+    }
+
     if (isMAS) {
       // App Store sürümü için dosya boyutu hesaplama
       logInfo(`Dizin boyutu hesaplanıyor (MAS): ${dirPath}`);
@@ -127,12 +135,21 @@ function getDirSize(dirPath) {
     } else {
       // Normal sürüm için mevcut metod
       logInfo(`Dizin boyutu hesaplanıyor (normal): ${dirPath}`);
-      const result = execSync(`du -sk "${dirPath}" 2>/dev/null || echo "0"`, { encoding: 'utf8' });
-      const size = parseInt(result.split('\t')[0]) * 1024; // KB to bytes
-      return size;
+      // Wildcard expansion için shell kullanıyoruz
+      const result = execSync(`du -sk ${dirPath} 2>/dev/null || echo "0"`, { encoding: 'utf8' });
+      // du birden fazla satır döndürebilir (wildcard durumunda), toplayalım
+      const lines = result.trim().split('\n');
+      let totalSize = 0;
+      for (const line of lines) {
+        const sizeKB = parseInt(line.split('\t')[0]);
+        if (!isNaN(sizeKB)) {
+          totalSize += sizeKB * 1024;
+        }
+      }
+      return totalSize;
     }
   } catch (error) {
-    logError(`Dizin boyutu hesaplanamadı: ${dirPath}`, error);
+    logError(`Dizin boyutu hesaplanamadı: ${originalPath}`, error);
     return 0;
   }
 }
@@ -147,7 +164,7 @@ function getSizeRecursively(dirPath) {
         const itemPath = path.join(dirPath, item);
         try {
           const stats = fs.statSync(itemPath);
-          
+
           if (stats.isFile()) {
             totalSize += stats.size;
           } else if (stats.isDirectory()) {
@@ -196,7 +213,7 @@ async function requestBookmarkForPath(filePath) {
     logInfo(`Bookmark kaydediliyor: ${filePath} -> ${selectedPath}`);
     bookmarks[filePath] = selectedPath;
     store.set(`bookmarks.${filePath}`, selectedPath);
-    
+
     return true;
   } catch (error) {
     logError(`Klasör erişim izni alınamadı: ${filePath}`, error);
@@ -206,6 +223,9 @@ async function requestBookmarkForPath(filePath) {
 
 // ~ işaretini ev dizini ile değiştiren fonksiyon
 function resolveHome(filepath) {
+  if (!filepath || typeof filepath !== 'string') {
+    return filepath;
+  }
   if (filepath.startsWith('~')) {
     return path.join(os.homedir(), filepath.slice(1));
   }
@@ -229,7 +249,7 @@ async function cleanDirectoryContents(dirPath) {
   }
 
   logInfo(`Dizin temizleniyor: ${resolvedPath}`);
-  
+
   // Dizin içeriğini oku ve sil
   fs.readdirSync(resolvedPath).forEach(file => {
     const fullPath = path.join(resolvedPath, file);
@@ -253,8 +273,8 @@ async function cleanDirectory(dirPath) {
     return { success: true };
   } catch (error) {
     logError(`Temizleme hatası: ${dirPath}`, error);
-    return { 
-      success: false, 
+    return {
+      success: false,
       error: error.message
     };
   }
@@ -277,12 +297,12 @@ ipcMain.handle('get-rules', () => {
 ipcMain.handle('scan-directories', async (event, rules) => {
   const results = [];
   logInfo('Dizin tarama başladı');
-  
+
   for (const rule of rules) {
     try {
       const expandedPath = rule.path.replace(/^~/, os.homedir());
       const resolvedPath = path.resolve(expandedPath);
-      
+
       if (fs.existsSync(resolvedPath)) {
         // App Store sürümü için izin kontrolü
         if (isMAS) {
@@ -292,9 +312,9 @@ ipcMain.handle('scan-directories', async (event, rules) => {
             continue;
           }
         }
-        
+
         const size = getDirSize(resolvedPath);
-        
+
         results.push({
           id: rule.id,
           name: rule.name,
@@ -307,7 +327,7 @@ ipcMain.handle('scan-directories', async (event, rules) => {
       logError(`Tarama hatası: ${rule.id}`, error);
     }
   }
-  
+
   store.set('settings.lastScan', new Date().toISOString());
   logInfo('Dizin tarama tamamlandı');
   return results;
@@ -366,6 +386,22 @@ ipcMain.handle('openInFinder', (event, folderPath) => {
   logInfo(`Finder'da açılıyor: ${folderPath}`);
   shell.showItemInFolder(folderPath);
   return true;
+});
+
+ipcMain.handle('execute-command', async (event, command) => {
+  try {
+    const resolvedCommand = command.replace(/^~/, os.homedir());
+    logInfo(`Komut çalıştırılıyor: ${resolvedCommand}`);
+    const output = execSync(resolvedCommand, { encoding: 'utf8', stdio: 'pipe' });
+    return { success: true, output };
+  } catch (error) {
+    logError(`Komut çalıştırma hatası: ${command}`, error);
+    return {
+      success: false,
+      error: error.message,
+      stderr: error.stderr ? error.stderr.toString() : ''
+    };
+  }
 });
 
 // Uygulama bilgilerini döndür
