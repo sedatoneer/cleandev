@@ -1,147 +1,170 @@
-# CleanTR - macOS Geliştirici Temizlik Uygulaması
+# CleanDev
 
-CleanTR, macOS geliştiricileri için disk temizleme uygulamasıdır. Geliştirme ortamınızı temiz tutmak için gereksiz dosyaları ve önbellekleri kolayca tespit edip temizlemenize yardımcı olur.
+**TR** | [EN](#english)
 
-![CleanTR Screenshot](assets/ss/screenshot.png)
+---
 
-## Özellikler
+## Türkçe
 
-- Xcode türev verileri, arşivler ve cihaz desteği dosyalarını temizleme
-- iOS Simulator ve Android Emülatör dosyalarını temizleme
-- Flutter build çıktıları ve npm/yarn önbelleklerini temizleme
-- Kolay kullanımlı arayüz
-- Koyu tema desteği
-- Türkçe ve İngilizce dil desteği
-- macOS sandbox uyumlu
+### Nedir?
 
-## Kullanım
+CleanDev, [Cleantr](https://github.com/truncgil/cleanup) projesinin bir fork'udur. Orijinal proje, macOS'ta gereksiz dosyaları temizleyen açık kaynaklı bir araçtır. Bu fork, orijinali temel alarak tamamen yeniden yazılmış ve geliştiricilere yönelik iki yeni özellik eklenmiştir.
 
-1. Temizlemek istediğiniz öğeleri seçin
-2. "Tara" düğmesine tıklayın
-3. Sonuçları gözden geçirin
-4. "Temizle" düğmesine tıklayarak seçili öğeleri temizleyin
+### Orijinalden Farkları
 
-## Geliştirme
+Orijinal Cleantr kaynak kodunu incelerken iki sorun fark ettim:
 
-### Gereksinimler
+1. Tarama motoru gerçek dosya sistemi okumak yerine `Math.random()` ile sahte boyutlar üretiyordu.
+2. Uygulama yalnızca macOS ARM64 için derlenebiliyordu. Sorun evrensel, çözüm platform bağımsız olmalıydı.
 
-- Node.js 14 veya üzeri
-- npm veya yarn
-- Electron
+Bunların yanı sıra geliştiricilerin yaygın yaşadığı ama mevcut hiçbir araçla çözülemeyen iki boşluk dikkatimi çekti: eski git projelerinde biriken build klasörleri ve paket yöneticilerinin global önbellekleri.
 
-### Kurulum
+### Yeni Özellikler
+
+#### Ölü Proje Dedektörü
+
+Seçtiğin klasörü tarayarak terk edilmiş git repolarını tespit eder. Her repo için `git log` çalıştırır, son commit tarihine bakarak projenin aktif olup olmadığına karar verir. Bulunan projeler kurtarılabilir alan miktarına göre sıralanır. Silme işlemi yalnızca build klasörlerini etkiler; kaynak kod, git geçmişi ve proje dosyaları dokunulmaz kalır.
+
+Desteklenen ekosistemler:
+
+| Dil | Tespit | Silinen Klasörler |
+|-----|--------|-------------------|
+| Node.js | `package.json` | `node_modules`, `.next`, `.nuxt`, `dist`, `.turbo` |
+| Python | `pyproject.toml` / `requirements.txt` | `.venv`, `__pycache__`, `.pytest_cache` |
+| Rust | `Cargo.toml` | `target/` |
+| Go | `go.mod` | `vendor/` |
+| Java | `pom.xml` / `build.gradle` | `.gradle`, `build/`, `out/` |
+| Flutter | `pubspec.yaml` | `.dart_tool/`, `build/` |
+| Ruby | `Gemfile` | `vendor/bundle` |
+| Elixir | `mix.exs` | `_build/`, `deps/` |
+| .NET | `*.csproj` / `*.sln` | `bin/`, `obj/` |
+| Swift | `Package.swift` | `.build/` |
+
+#### Global Önbellek Tarayıcı
+
+Paket yöneticilerinin global önbellek klasörlerini otomatik olarak bulur ve boyutlarını hesaplar. Klasör seçmene gerek yok; platform tespit edilerek doğru yollar otomatik belirlenir.
+
+Taranan önbellekler: npm, pnpm, Bun, Yarn, pip, uv, Poetry, Cargo registry, Cargo git cache, Gradle, Maven local repository
+
+#### Cross-Platform Destek
+
+Orijinal uygulama yalnızca macOS ARM64 üzerinde çalışıyordu. CleanDev Windows, macOS ve Linux üzerinde çalışır. Ölü Proje Dedektörü ve Global Önbellek özellikleri her platformda tam işlevseldir.
+
+### Kurulum ve Çalıştırma
 
 ```bash
-# Depoyu klonlayın
-git clone https://github.com/yourusername/cleantr.git
-cd cleantr
-
-# Bağımlılıkları yükleyin
+git clone https://github.com/KULLANICI_ADIN/cleandev
+cd cleandev
 npm install
-
-# Uygulamayı başlatın
-npm start
+npm run dev
 ```
 
 ### Derleme
 
 ```bash
-# macOS için derleme
-npm run build-mac
-
-# Mac App Store için derleme
-npm run build-mas
+npm run build:win    # Windows — .exe
+npm run build:mac    # macOS  — .dmg
+npm run build:linux  # Linux  — .AppImage
 ```
 
-## App Store'da Yayınlama
+Her `v*` etiket push'unda GitHub Actions üç platform için otomatik olarak derleyip release'e yükler.
 
-CleanTR'ı Mac App Store'da yayınlamak için aşağıdaki adımları izleyin:
+### Teknik Yapı
 
-### 1. Gerekli Sertifikalar ve Profiller
+- Electron + electron-vite
+- React + TypeScript
+- TailwindCSS
+- Node.js `fs.promises` — tüm dosya sistemi işlemleri asenkron
 
-Apple Developer hesabınızdan aşağıdaki sertifikaları oluşturun:
+### Katkı
 
-- Mac App Distribution
-- Mac Installer Distribution
-- Mac Development (geliştirme için)
+Yeni bir ekosistem eklemek için `src/main/scanner.ts` dosyasındaki `CLEANABLE_FOLDERS` ve `TYPE_MANIFESTS` dizilerini güncelle, `src/shared/types.ts` dosyasına yeni tipi ekle.
 
-### 2. Uygulama Kimliği Oluşturma
+Yeni bir global önbellek eklemek için `src/main/global-caches.ts` dosyasındaki tanım dizisine yeni giriş ekle.
 
-1. [Apple Developer Portal](https://developer.apple.com/account/resources/identifiers/list)'da yeni bir App ID oluşturun
-2. Bundle ID'yi `com.yourusername.cleantr` şeklinde ayarlayın
-3. Gerekli özellikleri etkinleştirin (App Sandbox gereklidir)
+---
 
-### 3. Provizyon Profili Oluşturma
+## English
 
-1. Mac App Store Distribution için bir provizyon profili oluşturun
-2. Oluşturulan profili indirip çift tıklayarak yükleyin
-3. Profili `build/embedded.provisionprofile` konumuna kopyalayın
+<a name="english"></a>
 
-### 4. App Store Connect'te Uygulama Oluşturma
+### What is it?
 
-1. [App Store Connect](https://appstoreconnect.apple.com)'e gidin
-2. "+" düğmesine tıklayarak yeni bir uygulama oluşturun
-3. Platform olarak macOS'u seçin
-4. Bundle ID, isim ve diğer bilgileri girin
+CleanDev is a fork of [Cleantr](https://github.com/truncgil/cleanup), an open-source macOS disk cleaner. This fork rewrites the application from scratch and adds two new developer-focused features.
 
-### 5. Uygulama Varlıklarını Hazırlama
+### What changed from the original
 
-Aşağıdaki varlıkları App Store Connect'e yükleyin:
+While reading Cleantr's source code, I found two problems:
 
-1. Uygulama simgeleri (1024x1024 dahil tüm boyutlar)
-2. Ekran görüntüleri (çeşitli boyutlar)
-3. Uygulama açıklaması ve anahtar kelimeler
+1. The scan engine generated fake file sizes using `Math.random()` instead of reading the actual filesystem.
+2. The application only ran on macOS ARM64. The problem it solves is universal, the solution should be platform-independent.
 
-### 6. Derleme ve İmzalama
+Beyond fixing these, I noticed two gaps that no existing GUI tool addresses: build artifacts accumulating in abandoned git repositories, and global package manager caches silently growing across every language ecosystem.
 
-1. Çevre değişkenlerini ayarlayın:
+### New Features
+
+#### Dead Project Detector
+
+Scans a folder you select for git repositories that have been abandoned. Runs `git log` on each repo, uses the last commit date to determine whether a project is still active, and presents results sorted by recoverable disk space. Deletion only removes build artifacts — source code, git history, and project files are never touched.
+
+Supported ecosystems:
+
+| Language | Detected by | Cleaned |
+|----------|-------------|---------|
+| Node.js | `package.json` | `node_modules`, `.next`, `.nuxt`, `dist`, `.turbo` |
+| Python | `pyproject.toml` / `requirements.txt` | `.venv`, `__pycache__`, `.pytest_cache` |
+| Rust | `Cargo.toml` | `target/` |
+| Go | `go.mod` | `vendor/` |
+| Java | `pom.xml` / `build.gradle` | `.gradle`, `build/`, `out/` |
+| Flutter | `pubspec.yaml` | `.dart_tool/`, `build/` |
+| Ruby | `Gemfile` | `vendor/bundle` |
+| Elixir | `mix.exs` | `_build/`, `deps/` |
+| .NET | `*.csproj` / `*.sln` | `bin/`, `obj/` |
+| Swift | `Package.swift` | `.build/` |
+
+#### Global Cache Scanner
+
+Automatically locates and measures global package manager cache directories. No folder selection needed — paths are resolved per-platform at scan time.
+
+Scanned caches: npm, pnpm, Bun, Yarn, pip, uv, Poetry, Cargo registry, Cargo git cache, Gradle, Maven local repository
+
+#### Cross-Platform Support
+
+The original application only ran on macOS ARM64. CleanDev runs on Windows, macOS, and Linux. The Dead Project Detector and Global Cache features are fully functional on all three platforms.
+
+### Getting Started
 
 ```bash
-export APPLE_ID="your.email@example.com"
-export APPLE_ID_PASSWORD="app-specific-password"
-export APPLE_TEAM_ID="3W8Z9FGZ63" # Bu sertifikalarınızdaki Team ID
+git clone https://github.com/YOUR_USERNAME/cleandev
+cd cleandev
+npm install
+npm run dev
 ```
 
-2. App Store paketi oluşturun:
+### Build
 
 ```bash
-npm run build-mas
+npm run build:win    # Windows — .exe installer
+npm run build:mac    # macOS  — .dmg
+npm run build:linux  # Linux  — .AppImage
 ```
 
-3. Oluşturulan paketi kontrol edin: `dist/CleanTR-1.0.1-mas.pkg`
+GitHub Actions automatically builds all three platforms and uploads them to a release on every `v*` tag push.
 
-### 7. App Store Connect'e Yükleme
+### Tech Stack
 
-1. [Transporter](https://apps.apple.com/us/app/transporter/id1450874784) uygulamasını kullanarak oluşturulan .pkg dosyasını yükleyin
-2. App Store Connect'te paket işleme tamamlandığında, uygulamanın "Build" bölümünde görünecektir
+- Electron + electron-vite
+- React + TypeScript
+- TailwindCSS
+- Node.js `fs.promises` — all filesystem operations are non-blocking
 
-### 8. İnceleme için Gönderme
+### Contributing
 
-1. App Store Connect'te tüm meta verileri ve ekran görüntülerini tamamlayın
-2. Test notlarını ve iletişim bilgilerini ekleyin
-3. "Submit for Review" düğmesine tıklayın
+To add a new ecosystem: update `CLEANABLE_FOLDERS` and `TYPE_MANIFESTS` in `src/main/scanner.ts`, and add the new type to `src/shared/types.ts`.
 
-### Önemli Notlar
+To add a new global cache entry: add a definition to the array in `src/main/global-caches.ts`.
 
-- App Store incelemeleri genellikle 1-3 gün sürer
-- Sandbox izinleri doğru yapılandırılmalıdır
-- Kullanıcıdan dosya/klasör seçmesi için standart açık/kaydet iletişim kutularını kullanın
-- Uygulamanın kullanıcı verilerini nasıl kullandığını açıklayan bir gizlilik politikası gereklidir
+---
 
-## Katkıda Bulunma
-
-1. Bu depoyu forklayın
-2. Özellik dalınızı oluşturun (`git checkout -b feature/amazing-feature`)
-3. Değişikliklerinizi commit edin (`git commit -m 'Add some amazing feature'`)
-4. Dalınıza push edin (`git push origin feature/amazing-feature`)
-5. Bir Pull Request açın
-
-## Lisans
-
-Bu proje MIT Lisansı altında lisanslanmıştır - detaylar için [LICENSE](LICENSE) dosyasına bakın.
-
-## İletişim
-
-Ümit Tunç - [@umittnc](https://twitter.com/umittnc) - hello@umittunc.org
-
-Proje Linki: [https://github.com/umittnc/cleantr](https://github.com/umittnc/cleantr) 
+Original project: [Cleantr by Umit Tunc](https://github.com/truncgil/cleanup) — MIT License.
+This fork is also MIT licensed.
